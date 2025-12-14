@@ -7,19 +7,26 @@ import re
 # Load the trained model and encoders
 @st.cache_resource
 def load_model_and_encoders():
-    with open('vehicle_price_model.pkl', 'rb') as f:
-        model = pickle.load(f)
-    
-    with open('encoders.pkl', 'rb') as f:
-        encoders = pickle.load(f)
-    
-    with open('scaler.pkl', 'rb') as f:
-        scaler = pickle.load(f)
-    
-    with open('feature_names.pkl', 'rb') as f:
-        feature_names = pickle.load(f)
-    
-    return model, encoders, scaler, feature_names
+    try:
+        with open('vehicle_price_model.pkl', 'rb') as f:
+            model = pickle.load(f)
+        
+        with open('encoders.pkl', 'rb') as f:
+            encoders = pickle.load(f)
+        
+        with open('scaler.pkl', 'rb') as f:
+            scaler = pickle.load(f)
+        
+        with open('feature_names.pkl', 'rb') as f:
+            feature_names = pickle.load(f)
+        
+        return model, encoders, scaler, feature_names
+    except FileNotFoundError:
+        st.error("Model files not found. Please ensure all required files are in the project directory.")
+        st.stop()
+    except Exception as e:
+        st.error(f"Error loading model files: {str(e)}")
+        st.stop()
 
 # Function to predict vehicle price
 def predict_price(model, encoders, scaler, feature_names, year, make, mileage, fuel, transmission, body, drivetrain, cylinders=4, doors=4, horsepower=150, engine_size=3.0):
@@ -78,14 +85,7 @@ def main():
     """)
     
     # Load model and encoders
-    try:
-        model, encoders, scaler, feature_names = load_model_and_encoders()
-    except FileNotFoundError:
-        st.error("Model files not found. Please run the training script first.")
-        return
-    except Exception as e:
-        st.error(f"Error loading model: {e}")
-        return
+    model, encoders, scaler, feature_names = load_model_and_encoders()
     
     # Create input fields
     col1, col2, col3 = st.columns(3)
